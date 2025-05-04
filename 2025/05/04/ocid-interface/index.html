@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  
+  <title>接入OCID的草稿 | Nofyso</title>
+  <meta name="google-site-verification" content="" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta itemprop="name" content="Nofyso" />
+  <meta itemprop="description" content="" />
+  <meta itemprop="image" content="" />
+  <link rel="shortcut icon" href="" type="image/x-icon">
+  <!-- keywords and description -->
+  
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <script src="/js/Waline.min.js"></script>
+  <!--script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script-->
+  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.4/polyfill.min.js"></script-->
+  <script src="/js/polyfill.min.js"></script>
+  <script id="MathJax-script" async src="/js/tex-mml-chtml.js"></script>
+  <link rel="stylesheet" href="/css/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" crossorigin="anonymous">
+  <script defer src="/js/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="/js/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+      onload="renderMathInElement(document.body);"></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <div id="container">
+    <header>
+  <div class="site-title">
+    <a href="/">
+      Nofyso
+    </a>
+  </div>
+  
+  
+  <p class="links">
+    
+    <a href="">
+      <img src="/images/links/" alt="">
+    </a>
+    
+  </p>
+  
+</header>
+    <div id="main">
+      <article class="post">
+  <h3 class="date">
+  <time datetime="2025-05-04T05:10:23.000Z">
+    May 4, 2025
+  </time>
+</h3>
+  <h1>接入OCID的草稿</h1>
+  <p class="post-info">
+  
+  
+</p>
+  
+<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Uni/" rel="tag">Uni</a></li></ul>
+
+  
+  <article>
+    <h1 id="没什么可说的前言"><a href="#没什么可说的前言" class="headerlink" title="没什么可说的前言"></a>没什么可说的前言</h1><p>为了获取更全面的控制，还是先接入OCID的为好</p>
+<h1 id="流程简图"><a href="#流程简图" class="headerlink" title="流程简图"></a>流程简图</h1><pre class="mermaid">graph TD
+  start((Start))
+  checkC[GET checkNeedCaptcha, UT]
+  isNeedC{isNeeded}
+  toSlider[GET toSliderCaptcha, none]
+  openSlider[GET openSliderCaptcha, T]
+  fetchWidth(Fetch width)
+  fetchAndCrack(Fetch image and track)
+  verifyCaptcha[POST verifySliderCaptcha, data]
+  login[POST login]
+  redirected{ReAuth?}
+  succ2[Let it redirect]
+  systemTime[POST systemTime, fake]
+  reAuth[POST getDynamicCodeByReauth]
+  waitForUser([Wait for user input])
+  submit[POST reAuthSubmit]
+  reAuthSuccess{Success?}
+  regetLogin[GET login]
+
+  start-->checkC
+  checkC-->isNeedC
+  isNeedC-->|true|toSlider-->fetchWidth
+  isNeedC-->|true|login
+  toSlider-->openSlider-->fetchAndCrack
+  fetchWidth-->verifyCaptcha
+  fetchAndCrack-->verifyCaptcha
+  verifyCaptcha-->succ1{Success?}
+  succ1-->|false|f1((Failed))
+  succ1-->|true|login
+  login-->redirected
+  redirected-->|false|succ2
+  redirected-->|true|systemTime-->reAuth-->waitForUser-->submit-->reAuthSuccess
+  reAuthSuccess-->|false|waitForUser
+  reAuthSuccess-->|true|regetLogin-->succ2</pre>
+<h1 id="请求细节"><a href="#请求细节" class="headerlink" title="请求细节"></a>请求细节</h1><h2 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h2><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Return</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET</code></td>
+<td><code>/authserver/checkNeedCaptcha.htl</code></td>
+<td>JSON:<code>&#123;&quot;isNeeded&quot;:Boolean&#125; </code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/authserver/common/toSliderCaptcha.htl</code></td>
+<td>HTML</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/authserver/common/openSliderCaptcha.htl</code></td>
+<td>JSON:<code>&#123;&quot;smallImage&quot;:base64,&quot;bigImage&quot;:base64,&quot;tagWidth&quot;:Int,&quot;yHeight&quot;:Int&#125;</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/authserver/common/verifySliderCaptcha.htl</code></td>
+<td>JSON:<code>&#123;&quot;errorCode&quot;:Int,&quot;errorMsg&quot;:String(success)&#125;</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/authserver/login</code></td>
+<td>HTML</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/authserver/systemTime</code></td>
+<td>JSON:<code>&#123;&quot;systemTime&quot;:&quot;2025-05-04 18:29:12&quot;&#125;</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/authserver/dynamicCode/getDynamicCodeByReauth.do</code></td>
+<td>JSON:<code>&#123;&quot;codeTime&quot;:120&#125;</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/authserver/reAuthCheck/reAuthSubmit.do</code></td>
+<td>JSON:<code>&#123;&quot;msg&quot;:String,&quot;code&quot;:&quot;reAuth_failed/reAuth_success&quot;&#125;</code></td>
+</tr>
+</tbody></table>
+<h2 id="各个请求细节"><a href="#各个请求细节" class="headerlink" title="各个请求细节"></a>各个请求细节</h2><p>注：自行携带Cookie</p>
+<h3 id="checkNeedCaptcha-htl"><a href="#checkNeedCaptcha-htl" class="headerlink" title="checkNeedCaptcha.htl"></a>checkNeedCaptcha.htl</h3><p>用途：检查是否需要滑块验证码<br>参数：带一个<code>username</code>和一个<code>_</code>，<code>_</code>是以毫秒为单位的时间戳<br>返回：很简单，就是一个Boolean</p>
+<h3 id="toSliderCaptcha-htl"><a href="#toSliderCaptcha-htl" class="headerlink" title="toSliderCaptcha.htl"></a>toSliderCaptcha.htl</h3><p>用途：在网页端中，用于显示验证码界面<br>参数：无<br>返回：一个HTML的网页，注意可以在这里获取到画板宽度</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;sliderDiv&quot;</span> <span class="attr">style</span>=<span class="string">&quot;position: relative; width: 280px; margin: 0px auto;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="openSliderCaptcha-htl"><a href="#openSliderCaptcha-htl" class="headerlink" title="openSliderCaptcha.htl"></a>openSliderCaptcha.htl</h3><p>用途：拉取验证码图片<br>参数：一个<code>_</code>，注意这里<code>_</code>的值应为<code>checkNeedCaptcha.htl</code>请求中<code>_</code>的值+1<br>返回：一个JSON对象，内含了<code>bigImage</code>（验证码底图）和<code>smallImage</code>（验证码拼图）两张图片的base64，以及<code>tagWidth</code>（小拼图的大小）和没有用的<code>yHeight</code>（据目前观测其值总为0）</p>
+<h3 id="verifySliderCaptcha-htl"><a href="#verifySliderCaptcha-htl" class="headerlink" title="verifySliderCaptcha.htl"></a>verifySliderCaptcha.htl</h3><p>用途：在线验证滑块验证码<br>参数：一个form，传入<code>canvasLength</code>（画板宽度）和<code>moveLength</code>（移动距离），距离计算的原点当然是左下角为0<br>返回：一个JSON对象，内含一个<code>errorCode</code>（成功时为1，失败时为0），和一个<code>errorMsg</code>（成功时为success，失败时为error）</p>
+<h3 id="login"><a href="#login" class="headerlink" title="login"></a>login</h3><p>用途：最复杂的请求，目前只发掘出一种使用方法——用账号密码登录<br>参数：一个form，有很多内容，具体如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>username</code></td>
+<td>顾名思义，用户名</td>
+<td></td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>顾名思义，密码</td>
+<td>加密方式<a href="#%E5%AF%86%E7%A0%81%E7%9A%84%E5%8A%A0%E5%AF%86">见下</a></td>
+</tr>
+<tr>
+<td><code>captcha</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>cllt</code></td>
+<td>为<code>&quot;userNameLogin&quot;</code>或<code>&quot;qrLogin&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>dllt</code></td>
+<td>始终为<code>&quot;generalLogin&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>lt</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td>估计是被废弃的选项</td>
+</tr>
+<tr>
+<td><code>execution</code></td>
+<td>从网页端的表单中获取</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>返回：如果成功，会重定向至目标网页；如果需要多因子验证，会重定向至多因子验证</p>
+<h3 id="systemTime"><a href="#systemTime" class="headerlink" title="systemTime"></a>systemTime</h3><p>用途：获取系统时间，用途不明（看在它甚至是POST方法的情况下还是写了）<br>参数：无<br>返回：一个JSON对象，内含一个键是<code>systemTime</code>，值是格式为<code>yyyy-MM-dd HH:mm:ss</code>的时间</p>
+<h3 id="getDynamicCodeByReauth-do"><a href="#getDynamicCodeByReauth-do" class="headerlink" title="getDynamicCodeByReauth.do"></a>getDynamicCodeByReauth.do</h3><p>用途：获取动态验证码<br>参数：一个form，传入<code>username</code>（用户名）和<code>authCodeTypeName</code>（验证方式，一般为<code>reAuthDynamicCodeType</code>）<br>返回：一个JSON对象，内含一个<code>codeTime</code>（估计是验证码发送CD）</p>
+<h3 id="reAuthSubmit-do"><a href="#reAuthSubmit-do" class="headerlink" title="reAuthSubmit.do"></a>reAuthSubmit.do</h3><p>用途：提交动态验证码<br>参数：一个form，内容有点多，具体如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>service</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>reAuthType</code></td>
+<td>始终为<code>&quot;3&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>isMutifactor</code></td>
+<td>始终为<code>&quot;true&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>dynamicCode</code></td>
+<td>验证码的值</td>
+<td></td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>answer1</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>answer2</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>otpCode</code></td>
+<td>始终为<code>&quot;&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>skipTmpReAuth</code></td>
+<td>选择之后是否跳过验证</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="密码的加密"><a href="#密码的加密" class="headerlink" title="密码的加密"></a>密码的加密</h2><p>在<a href="#login">这里</a>发送的密码是一串base64值，是经过加密的，具体如下：<br>密码使用<code>AES/CBC/Pkcs5Padding</code>进行加密：  </p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>明文</td>
+<td>用户密码+随机生成的64位长字符串</td>
+</tr>
+<tr>
+<td>密码</td>
+<td>在主界面获取到的id为<code>pwdEncryptSalt</code>的<code>&lt;input&gt;</code>的值</td>
+</tr>
+<tr>
+<td>IV</td>
+<td>随机生成的16位长字符串</td>
+</tr>
+</tbody></table>
+<p>随机字符串的每一个字符为<code>ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678</code>之中的其中之一</p>
+
+  </article>
+  
+</article>
+
+
+    </div>
+  </div>
+  <footer>
+  
+  <p>
+    <span id="cirno_tip"></span>
+  </p>
+  <p>
+    Powered by <a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> | Theme <a target="_blank" rel="noopener" href="https://github.com/syy11cn/hexo-theme-linear">Linear</a> from <a target="_blank" rel="noopener" href="https://syy11.cn">Yiyang Sun</a>
+  </p>
+  <script src="/js/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({theme: 'forest'});
+  </script>
+  <script>
+    function genRandom(max){
+      return Math.floor(Math.random()*(max+1));
+    }
+    let arr=[
+      "100% Bad Code!",
+      "スターいっぱい夢いっぱいです！"
+    ];
+    document.getElementById("cirno_tip").innerText=arr[genRandom(arr.length-1)];
+  </script>
+</footer>
+  
+  <script src="/js/busuanzi.pure.mini.js">
+  </script>
+  <script>
+    Waline({
+      el: '#waline',
+      placeholder: '',
+      avatar: 'retro',
+      visitor: true,
+      requiredFields: ['nick', 'mail'],
+      serverURL: '',
+      emoji: [
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/qq',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/alus',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/tw-emoji',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/weibo',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/tieba',
+      ]
+    });
+  </script>
+</body>
+
+</html>
