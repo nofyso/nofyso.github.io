@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  
+  <title>草稿-2 | Nofyso</title>
+  <meta name="google-site-verification" content="" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta itemprop="name" content="Nofyso" />
+  <meta itemprop="description" content="" />
+  <meta itemprop="image" content="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <!-- keywords and description -->
+  
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <!--script src="/js/Waline.min.js"></script-->
+  <!--script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script-->
+  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.4/polyfill.min.js"></script-->
+  <script src="/js/polyfill.min.js"></script>
+  <script id="MathJax-script" async src="/js/tex-mml-chtml.js"></script>
+  <link rel="stylesheet" href="/css/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" crossorigin="anonymous">
+  <script defer src="/js/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="/js/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+      onload="renderMathInElement(document.body);"></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <div id="container">
+    <header>
+  <div class="site-title">
+    <a href="/">
+      Nofyso
+    </a>
+  </div>
+  
+  
+  <p class="links">
+    
+    <a href="">
+      <img src="" alt="">
+    </a>
+    
+  </p>
+  
+</header>
+    <div id="main">
+      <article class="post">
+  <h3 class="date">
+  <time datetime="2025-09-29T16:02:45.000Z">
+    Sep 30, 2025
+  </time>
+</h3>
+  <h1>草稿-2</h1>
+  <p class="post-info">
+  
+  
+</p>
+  
+<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Flutter/" rel="tag">Flutter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/corrupt/" rel="tag">corrupt</a></li></ul>
+
+  
+  <article>
+    <h1 id="草稿"><a href="#草稿" class="headerlink" title="草稿"></a>草稿</h1><h2 id="一些缩写"><a href="#一些缩写" class="headerlink" title="一些缩写"></a>一些缩写</h2><p>由于懒得打太多的代码块 <del>（并且我真不认为有除了我以外的人来看这玩意）</del> ，所以规定一些缩写：  </p>
+<table>
+<thead>
+<tr>
+<th>名字</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>repo</td>
+<td><code>Repository</code>，没有特殊说明就是<code>AbstractRepository</code></td>
+</tr>
+<tr>
+<td>uc</td>
+<td><code>UseCase</code></td>
+</tr>
+<tr>
+<td>notifier</td>
+<td><code>StateNotifier&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td>aNotifier</td>
+<td><code>AsyncNotifier&lt;T&gt;</code>，异步版的notifier</td>
+</tr>
+<tr>
+<td>aValue</td>
+<td><code>AsyncValue&lt;T&gt;</code>，一个目前看来只有3个实现的抽象类</td>
+</tr>
+<tr>
+<td>数据键</td>
+<td>一般是<code>EnhancedPrefKey&lt;OT,ET&gt;</code>，被我<del>自认为</del>加强过后的<code>PrefKey&lt;T&gt;</code></td>
+</tr>
+</tbody></table>
+<h2 id="进展"><a href="#进展" class="headerlink" title="进展"></a>进展</h2><p>重构的进度很顺利，先简单做个小小的总结：  </p>
+<ul>
+<li>删掉了大多数的uc，然后将多个uc抽象成一个，感觉不错  </li>
+<li>将所有（？）数据持久化的操作移动到了Data层，包括成功后自动保存账密的逻辑，也放到了Data层<ul>
+<li>以前的情况是：<ul>
+<li>在首次登录时，Domain层写数据repo，然后再通过repo来获取账密，传入Data层</li>
+<li>以后的登录，Domain层都是通过repo来获取账密，然后传入Data层</li>
+<li>登录失败时，持久化那块无事发生</li>
+<li>登录成功时，Domain层接收到登录成功的Result后，由Domain层写repo来实现持久化</li>
+</ul>
+</li>
+<li>现在的情况是：<ul>
+<li>在首次登录时，Domain层仍然给Data层传账密，不过现在Data层负责操作repo，然后给数据做持久化</li>
+<li>以后的登录，Data层自己读repo，Domain层不需要再传东西了</li>
+<li>登录失败时，持久化那层仍然无事发生</li>
+<li>登录成功时，Data层来负责写repo</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>给Data层的Api（这里指的是第二级封装，第一级是retrofit的rawApi；第三级可以说是repo），加了回滚重试wrapper，这样就可以轻松处理登录token过期的问题</li>
+<li>新造了几个好用的工具，例如给<code>extension on String</code>的扩展方法加了一个能处理JSON数据键的方法，好像叫<code>EnhancedPrefKey&lt;String, Option&lt;OT&gt;&gt; toEnhancedKeyJson&lt;OT&gt;(OT defaultValue,OT Function(Map&lt;String, dynamic&gt;) fromJson)</code>，有了这个，就可以一下解决JSON数据序列化和持久化的问题了</li>
+<li>摸了一点UI，加了一个等待mask（叫wrapper好像更合适？），叫做<code>Widget loadWaitingMask(&#123;required List&lt;AsyncValue&lt;Option&lt;dynamic&gt;&gt;&gt; values,required List&lt;AsyncValue&lt;Option&lt;dynamic&gt;&gt;&gt; requiredValues,required BuildContext context,required Widget child&#125;)</code><del>（我写的函数怎么连签名都这么长啊喂！）</del> 它的作用是等待多个被watch的aNotifier所产生的aValue，在等待完成之前，就显示加载画面，如果requiredValues有失败的，就显示失败画面，至少我认为，它很适合处理一些同时需要多个异步状态的页面 <del>虽然说造这么多轮子之后自己都不会用了也说不定</del></li>
+</ul>
+<h2 id="还有什么要做的吗"><a href="#还有什么要做的吗" class="headerlink" title="还有什么要做的吗"></a>还有什么要做的吗</h2><p>很多：  </p>
+<ul>
+<li>完善异常（更确切的说，是结果（<code>Result</code>,或者<code>Either</code>））的处理，现在它们的处理还是有点不健壮，我的目标是在Dart中将真正的异常扼杀在摇篮里（其实就是异常不应该抛到很上层的位置，应该及时被转成<code>Either</code>），我承认我口气不小，并且过于傲慢，但是至少我认为这可以让代码变得好看（至少不会一个小小的异常啪的一下抛到顶层）</li>
+<li>写完最基本的功能，例如课表的查看……好麻烦</li>
+<li>完善UI的动画，是的，这个Flutter的动画效果和基础设施完全没法和Jetpack Compose比，连最基本的AnimatedVisibility都没有，天哪，这就要求我花不少力气来还原之前软件的效果……</li>
+<li>以及，还完技术的债——至少把之前有的功能都实现了<ul>
+<li>这里就包括了自定义主题、以及一堆个性化的设置</li>
+<li>但是显然， <strong>设置</strong>的实现本身比这些更重要</li>
+</ul>
+</li>
+</ul>
+
+  </article>
+  
+</article>
+
+
+    </div>
+  </div>
+  <footer>
+  
+  <p>
+    <span id="cirno_tip"></span>
+  </p>
+  <p>
+    Powered by <a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> | Theme <a target="_blank" rel="noopener" href="https://github.com/syy11cn/hexo-theme-linear">Linear</a> from <a target="_blank" rel="noopener" href="https://syy11.cn">Yiyang Sun</a>
+  </p>
+  <script src="/js/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({theme: 'forest'});
+  </script>
+  <script>
+    function genRandom(max){
+      return Math.floor(Math.random()*(max+1));
+    }
+    let arr=[
+      "100% Bad Code!",
+      "スターいっぱい夢いっぱいです！"
+    ];
+    document.getElementById("cirno_tip").innerText=arr[genRandom(arr.length-1)];
+  </script>
+</footer>
+  
+  <!--script src="/js/busuanzi.pure.mini.js"></script-->
+  <!--script>
+    Waline({
+      el: '#waline',
+      placeholder: '',
+      avatar: 'retro',
+      visitor: true,
+      requiredFields: ['nick', 'mail'],
+      serverURL: '',
+      emoji: [
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/qq',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/alus',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/tw-emoji',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/weibo',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/tieba',
+      ]
+    });
+  </sript-->
+</body>
+
+</html>
