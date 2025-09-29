@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  
+  <title>clean-arch-note-1 | Nofyso</title>
+  <meta name="google-site-verification" content="" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta itemprop="name" content="Nofyso" />
+  <meta itemprop="description" content="" />
+  <meta itemprop="image" content="/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <!-- keywords and description -->
+  
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <!--script src="/js/Waline.min.js"></script-->
+  <!--script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script-->
+  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.4/polyfill.min.js"></script-->
+  <script src="/js/polyfill.min.js"></script>
+  <script id="MathJax-script" async src="/js/tex-mml-chtml.js"></script>
+  <link rel="stylesheet" href="/css/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" crossorigin="anonymous">
+  <script defer src="/js/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="/js/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+      onload="renderMathInElement(document.body);"></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  <div id="container">
+    <header>
+  <div class="site-title">
+    <a href="/">
+      Nofyso
+    </a>
+  </div>
+  
+  
+  <p class="links">
+    
+    <a href="">
+      <img src="" alt="">
+    </a>
+    
+  </p>
+  
+</header>
+    <div id="main">
+      <article class="post">
+  <h3 class="date">
+  <time datetime="2025-09-28T03:55:32.000Z">
+    Sep 28, 2025
+  </time>
+</h3>
+  <h1>clean-arch-note-1</h1>
+  <p class="post-info">
+  
+  
+</p>
+  
+<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flutter-corrupt/" rel="tag">flutter corrupt</a></li></ul>
+
+  
+  <article>
+    <h1 id="草稿"><a href="#草稿" class="headerlink" title="草稿"></a>草稿</h1><p>是的，最近刚刚开始研究这玩意，由于写在纸上还是太过于凌乱了，所以写到了这里<br>o((&gt;ω&lt; ))o</p>
+<h2 id="各个层级的分工"><a href="#各个层级的分工" class="headerlink" title="各个层级的分工"></a>各个层级的分工</h2><h3 id="Data层"><a href="#Data层" class="headerlink" title="Data层"></a>Data层</h3><p>这一层用来存放<code>RepositoryImpl</code>、<code>DTO</code>这类东西，处理一些最底层的数据交互，例如数据持久化的细节<br>一些网络的基础操作，Retrofit、本地文件的处理在这里进行</p>
+<h3 id="Domain层"><a href="#Domain层" class="headerlink" title="Domain层"></a>Domain层</h3><p>这一层处理具体的业务逻辑，例如<code>UseCase</code>，<code>Entity</code>，以及<code>AbstractRepository</code><br><code>Repository</code>的选择、各种<code>DataSource</code>的分流在这里进行</p>
+<h3 id="Presentation层"><a href="#Presentation层" class="headerlink" title="Presentation层"></a>Presentation层</h3><p>这一层存放UI界面，处理UI和Domain层的关系<br><code>StateNotifier</code>存放在这里，他接受UI的请求，调用Domain层的<code>UseCase</code>，并更新<code>StateNotifier</code>；注意：<code>StateNotifier</code>本身不处理大量业务逻辑 <del>（可能仅仅作为“薄层”存在？天哪，这是什么奇奇怪怪的名词…）</del></p>
+<h2 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h2><p>老实说，我现在对于现在的局面缺乏掌控……我想我应该尽可能……嗯，尽可能调整并且审视一下当前的局面……</p>
+<h3 id="Data层-1"><a href="#Data层-1" class="headerlink" title="Data层"></a>Data层</h3><p>在这层，我并没有存放任何<code>DTO</code>，因为获取到的持久化数据也好，从网络中拉取到的东西也罢，都可以完全等同于Domain层的<code>Entity</code>，并且给他们加了JSON序列化之后，情况好了非常多<br>在这一层，我存放了在Domain层定义的<code>AbstractSchool</code>的不同学校的实现类，而这些实现类内部有各种的诸如Retrofit的东西啊、TensorFlow的东西啊，各种奇奇怪怪的，却又接近比较底层的东西<br>由于配置了DI，Domain层可以很轻松地拿到这层的<code>RepositoryImpl</code>实例<br>关于这层，有几个问题：  </p>
+<ol>
+<li>在这层，需要处理不同数据源的处理和整合，所以数据持久化的工作理应放在这层——这点我之前没有搞懂，导致现在的结构十分混乱，天哪——所以，数据持久化和数据源的选择的具体操作应该放在Data层，这点我可能要想想怎么重构……<br>一种可行（？）的方法是：将数据抽象成<code>Stream</code>，先从本地拉取数据yield出去，然后再从网络上拉取最新的消息，这样又会造成一些问题：其中一个问题是如何处理刷新逻辑的问题（如果我要手动触发数据刷新，例如强行从网络拉取数据，或者我想控制拉取数据的时间，例如我想先从网络预载数据，然后立即持久化它，用户看到的永远是本地的数据，这种应该怎么实现呢？我不想让数据在被看到的时候才开始从网络加载）<br>（或者还有一种方法：UI的<code>Notifier</code>访问的<code>UseCase</code>仅仅拉取本地信息，新建一个新的管理刷新的<code>Notifier</code>和<code>UseCase</code>，由UI载入时手动触发刷新，刷新后，重建对应的<code>Notifier</code>，使UI做出更改，这样就不需要使用<code>Stream</code>）<br>好吧，这个问题我大概知道了，留到下一章解决</li>
+</ol>
+<h3 id="Domain层-1"><a href="#Domain层-1" class="headerlink" title="Domain层"></a>Domain层</h3><p>这层相对重要一点……或者说，它是最重要的也不为过，目前很多的疑问出现在这层<br>首先，我创建的<code>UseCase</code>太多了，多到已经有点到了过度设计的程度，我应该考虑删掉一点……或者说，删掉很多<br>之后再说吧</p>
+<h3 id="Presentation层-1"><a href="#Presentation层-1" class="headerlink" title="Presentation层"></a>Presentation层</h3><p>除了<code>Notifier</code>以外，没啥要注意的</p>
+<h2 id="重构"><a href="#重构" class="headerlink" title="重构"></a>重构</h2><p>正如你（或者说“我”）所见，这个项目需要一次重构，包括但不限于重建现有的架构<br>首先是在上一章的Data层提到的问题：我现在打算采用第二种解决方案：  </p>
+<ul>
+<li>所有诸如<code>ClassTableNotifier</code>此类直接获取数据的<code>Notifier</code>不再获取联网数据，而仅使用本地数据  </li>
+<li>创建一个<code>RefreshNotifier</code>，它维护了当前刷新的状态，并提供刷新需用的方法  </li>
+<li>当数据需要刷新时，UI调用<code>RefreshNotifier</code>的刷新方法，<code>RefreshNotifier</code>负责调用网络操作的API（<code>AbstractRepository</code>）然后<code>RefreshNotifier</code>重建其它<code>Notifier</code>，使watch它们的UI重建  </li>
+<li>对对对，再像旧项目一样抽象一下刷新流程</li>
+</ul>
+<p>一些可能的问题：</p>
+<ul>
+<li>如果用户想要选择拉取的日期，而不是默认值的话，数据又要怎么流呢？  </li>
+<li><code>RefreshNotifier</code>的业务逻辑会不会太多了……？  </li>
+<li>应该……没多大问题了……吧？</li>
+</ul>
+<p>以及，还有一个问题：登录所需数据（账号密码这类的）持久化数据该由谁管理？<br>目前的看法：  </p>
+<ul>
+<li>目前认为，应该由Data层管理  </li>
+<li>Domain层传入一次登录数据后，以后直接调用Data层的登录方法，直接获取登录结果  </li>
+<li>所以，Domain层现在不干涉这些持久化数据的存储  </li>
+<li>而Data层管理这些登录相关的持久化数据，例如在Domain层传入数据，登录成功后，Data层直接存放这些数据，而不是像之前那样，Domain层读取和存放持久化数据，Data层一直依赖于Domain层传入的数据  </li>
+<li>之前的方法其实暴露了这个问题：原本Data层的登录仅仅依赖于登录持久化数据，以及初次从Domain层传入的登录数据，而我将前者的依赖关系复杂化了（Domain–完全依赖-&gt;Data），这是十分愚蠢的，改成现在这样（Domain–部分依赖-&gt;Data(自己依赖自己)），应该会更加合理一点</li>
+</ul>
+<p>好了，再写一个跑不起来的原型：  </p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RefreshNotifier</span> <span class="keyword">extends</span> <span class="title">StateNotifier</span>&lt;<span class="title">RefreshState</span>&gt;</span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RefreshState</span></span>&#123;</span><br><span class="line">  <span class="built_in">bool</span> isRefreshing;</span><br><span class="line">  <span class="built_in">int</span> refreshPhase;<span class="comment">//TODO</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//想象这里有Provider</span></span><br></pre></td></tr></table></figure>
+
+<p><del>我到底在和谁说话啊</del><br><del>不管啦</del></p>
+
+  </article>
+  
+</article>
+
+
+    </div>
+  </div>
+  <footer>
+  
+  <p>
+    <span id="cirno_tip"></span>
+  </p>
+  <p>
+    Powered by <a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a> | Theme <a target="_blank" rel="noopener" href="https://github.com/syy11cn/hexo-theme-linear">Linear</a> from <a target="_blank" rel="noopener" href="https://syy11.cn">Yiyang Sun</a>
+  </p>
+  <script src="/js/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({theme: 'forest'});
+  </script>
+  <script>
+    function genRandom(max){
+      return Math.floor(Math.random()*(max+1));
+    }
+    let arr=[
+      "100% Bad Code!",
+      "スターいっぱい夢いっぱいです！"
+    ];
+    document.getElementById("cirno_tip").innerText=arr[genRandom(arr.length-1)];
+  </script>
+</footer>
+  
+  <!--script src="/js/busuanzi.pure.mini.js"></script-->
+  <!--script>
+    Waline({
+      el: '#waline',
+      placeholder: '',
+      avatar: 'retro',
+      visitor: true,
+      requiredFields: ['nick', 'mail'],
+      serverURL: '',
+      emoji: [
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/qq',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/alus',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/tw-emoji',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/weibo',
+        'https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/tieba',
+      ]
+    });
+  </sript-->
+</body>
+
+</html>
