@@ -388,6 +388,11 @@ th {
   padding-top: 20px;
   border-top: 1px dashed #3d3f41;
 }
+.cirno-tip {
+  display: flex;
+  padding-top: 20px;
+  justify-content: center;
+}
 .social-link {
   color: #908d8d;
   transition: color 0.15s ease, transform 0.15s ease;
@@ -1364,7 +1369,7 @@ pre:hover .copy-button {
 .highlight .keyword,
 .highlight .selector-tag,
 .highlight .addition {
-  color: #ea80fc;
+  color: #8c9eff;
 }
 .highlight .number,
 .highlight .string,
@@ -1372,14 +1377,14 @@ pre:hover .copy-button {
 .highlight .literal,
 .highlight .doctag,
 .highlight .regexp {
-  color: #b388ff;
+  color: #ea80fc;
 }
 .highlight .title,
 .highlight .section,
 .highlight .name,
 .highlight .selector-id,
 .highlight .selector-class {
-  color: #81a2be;
+  color: #b388ff;
 }
 .highlight .attribute,
 .highlight .attr,
@@ -1387,7 +1392,7 @@ pre:hover .copy-button {
 .highlight .template-variable,
 .highlight .class .title,
 .highlight .type {
-  color: #c66;
+  color: #ff80ab;
 }
 .highlight .symbol,
 .highlight .bullet,
@@ -1397,11 +1402,11 @@ pre:hover .copy-button {
 .highlight .selector-attr,
 .highlight .selector-pseudo,
 .highlight .link {
-  color: #de935f;
+  color: #84ffff;
 }
 .highlight .built_in,
 .highlight .deletion {
-  color: #ea80fc;
+  color: #8c9eff;
 }
 .highlight .formula {
   background: #232628;
