@@ -1364,7 +1364,7 @@ pre:hover .copy-button {
 .highlight .keyword,
 .highlight .selector-tag,
 .highlight .addition {
-  color: #b294bb;
+  color: #ea80fc;
 }
 .highlight .number,
 .highlight .string,
@@ -1372,7 +1372,7 @@ pre:hover .copy-button {
 .highlight .literal,
 .highlight .doctag,
 .highlight .regexp {
-  color: #b5bd68;
+  color: #b388ff;
 }
 .highlight .title,
 .highlight .section,
@@ -1401,7 +1401,7 @@ pre:hover .copy-button {
 }
 .highlight .built_in,
 .highlight .deletion {
-  color: #b294bb;
+  color: #ea80fc;
 }
 .highlight .formula {
   background: #232628;
