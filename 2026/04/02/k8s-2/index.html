@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>k8s 踩坑记 - 2 | nofyso</title>
+
+
+
+<meta name="author" content="nofyso">
+
+
+
+<!-- Canonical -->
+<link rel="canonical" href="/2026/04/02/k8s-2/">
+
+<!-- Favicon -->
+<link rel="icon" href="/favicon.ico">
+
+<!-- RSS -->
+
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s 踩坑记 - 2">
+<meta property="og:url" content="/2026/04/02/k8s-2/">
+<meta property="og:site_name" content="nofyso">
+
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="k8s 踩坑记 - 2">
+
+
+<!-- Theme Color -->
+<meta name="theme-color" content="#1d1f21">
+<meta name="msapplication-TileColor" content="#1d1f21">
+
+<!-- Stylesheets -->
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<!-- Custom Layout Variables -->
+
+<style>
+:root {
+  --page-width: 60rem;
+  --content-width: 900px;
+  --mobile-padding: 12px;
+}
+</style>
+
+<!-- Analytics -->
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body class="theme-dark">
+  <div class="container">
+    <header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      
+      <a href="/" class="site-title">
+        nofyso
+      </a>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <ul class="nav-menu" id="nav-menu">
+        
+          
+          
+            
+            <li class="nav-item">
+              <a href="/"
+                 class="nav-link"
+                 >
+                Home
+              </a>
+            </li>
+            
+              <li class="nav-divider">|</li>
+            
+          
+            
+            <li class="nav-item">
+              <a href="/archives/"
+                 class="nav-link"
+                 >
+                Articles
+              </a>
+            </li>
+            
+              <li class="nav-divider">|</li>
+            
+          
+            
+            <li class="nav-item">
+              <a href="/tags/"
+                 class="nav-link"
+                 >
+                Tags
+              </a>
+            </li>
+            
+          
+        
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <main class="main">
+      
+        <div class="page-layout">
+          <article class="post">
+  <header class="post-header">
+  <h1 class="post-title">k8s 踩坑记 - 2</h1>
+
+  <div class="post-meta">
+    <span class="meta-item">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+      <time datetime="2026-04-02">
+        2026-04-02
+      </time>
+    </span>
+
+    
+      <span class="meta-item">
+        <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3v7.12z"/></svg>
+        <time datetime="2026-04-02">
+          Updated on 2026-04-02
+        </time>
+      </span>
+    
+
+    
+  </div>
+</header>
+
+
+  
+    <nav class="toc">
+  <h3 class="toc-title">Table of Contents</h3>
+  <div class="toc-list">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E6%96%B0%E7%9A%84%E5%86%92%E9%99%A9%E4%BC%99%E4%BC%B4%E5%8A%A0%E5%85%A5%EF%BC%81"><span class="toc-text">有新的冒险伙伴加入！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MetalLB"><span class="toc-text">MetalLB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ingress"><span class="toc-text">Ingress</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E8%A1%A5%E9%BD%90"><span class="toc-text">概念补齐</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2"><span class="toc-text">控制平面与数据平面</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%9C%E7%84%B6%E8%BF%98%E6%98%AF%E8%A6%81%E6%9D%A5%E7%82%B9%E5%B9%B2%E8%B4%A7%E5%95%8A"><span class="toc-text">果然还是要来点干货啊</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MetalLB-1"><span class="toc-text">MetalLB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ingress-nginx"><span class="toc-text">Ingress-nginx</span></a></li></ol></li></ol>
+  </div>
+</nav>
+
+  
+
+  <div class="post-content">
+  <h2 id="有新的冒险伙伴加入！"><a href="#有新的冒险伙伴加入！" class="headerlink" title="有新的冒险伙伴加入！"></a>有新的冒险伙伴加入！</h2><h3 id="MetalLB"><a href="#MetalLB" class="headerlink" title="MetalLB"></a>MetalLB</h3><blockquote>
+<p>（在这一部分，我会尝试用较为“官方”的措辞来总结；而在正文部分，我还是会用大白话说）<br>MetalLB是一个控制平面组件，它可以在BareMetal环境下，为<code>Service</code>的<code>LoadBalancer</code>语义提供一个实现<br>它可以通过ARP(<em>IPv4</em>)&#x2F;NDP(<em>IPv6</em>)协议（在L2模式下）或者BGP协议（在BGP模式下）来宣告VIP（Virtual IP）<br>从而使入口端流量流向leader（在L2模式下）或者进行路由层面的负载均衡（在BGP模式下）</p>
+</blockquote>
+<p>这家伙在说些什么呢……（自我批判）<br>总之，k8s本身并不提供<code>LoadBalancer</code>语义的具体实现。通常情况下，云厂商售卖的云服务器中提供了它的实现，而我们的本地裸机如果想要使用<code>type: LoadBalancer</code>，就需要自己安装一个了，MetalLB就是其中一种。简单点来讲，安装了MetalLB，集群就可以“假装自己在云上”。<br>需要注意的是，MetalLB本身<strong>并不</strong>负责流量转发，它只负责“将流量引入集群”，实际的转发工作由<code>kube-proxy</code>和CNI这类组件负责<br>它也只控制入口流量的流向，如上文所述，<code>kube-proxy</code>等等这些组件会负责后续的转发，确保（至少如果我没配置错的话）流量送到正确的地方<br>在L2模式下，入口的所有流量首先会被送到Leader，尽管这听起来配不上它的“LoadBalancer”的名头，但它仍然属于负载均衡的一部分；在BGP模式下，这玩意就能充分发挥优势，真正地在路由层面进行分流了<br>在L2模式下，它会选出一个leader节点，如果这个leader节点挂掉，它就会选出下一个……这就是“漂移”，一定程度上减轻了单点故障的影响，为集群带来了一点稳定性  </p>
+<blockquote>
+<p>“可恶，集群阵！”<br>“就一个节点也能叫「集群」吗？”<br>——《东方K8S》</p>
+</blockquote>
+<p>在学习初期，我曾经使用<code>NodePort</code>来暴露Service，并且当时的我认为使用<code>NodePort</code>和使用<code>LoadBalancer</code>和MetalLB是没有区别的。彳亍吧，使用<code>NodePort</code>在单节点的集群用来暴露服务或者用来测试确实是可行的，但是这么做的缺点会很快暴露出来：</p>
+<ul>
+<li>无法暴露低位端口（80&#x2F;443），因为<code>NodePort</code>有限制 <del>（当然很有可能是设计上就不打算让我们这么做）</del></li>
+<li>在Service越来越多时，<code>NodePort</code>的管理将会变得异常困难</li>
+<li>最致命的一点……<code>NodePort</code>暴露出来的服务是 <em>节点相关</em> 而非 <em>集群相关</em> 的，这意味着我们需要访问 <em>节点</em> 来访问暴露的服务……嘶……</li>
+</ul>
+<h3 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress"></a>Ingress</h3><p>好吧，其实如果单独讲“Ingress”的话，可能会引起歧义……它可以指“被ingress-controller读取并执行的一种资源”，也可以指“Kubernetes Ingress这一套东西” <del>当然这节的节标题指的是后者</del><br>Ingress（体系）提供了第七层的路由抽象，所以可以提供第七层负载均衡，ingress资源当然本身不负责转发流量，而是影响ingress-controller的行为 <del>废话</del> ；从某种意义上来说ingress-controller自身不负责转发流量（？），但是奈何它与更加底层的实现（例如nginx，这些实现最终提供了流量转发）紧紧耦合了起来，所以其实ingress-controller自身确实承担了转发流量的工作</p>
+<h2 id="概念补齐"><a href="#概念补齐" class="headerlink" title="概念补齐"></a>概念补齐</h2><h3 id="控制平面与数据平面"><a href="#控制平面与数据平面" class="headerlink" title="控制平面与数据平面"></a>控制平面与数据平面</h3><blockquote>
+<p>曾经，我以为，控制平面和数据平面的划分是以节点为单位的</p>
+</blockquote>
+<p>但是实际上大错特错，控制平面应当是负责调控节点运行状态的“组件集合”，例如<code>kube-apiserver</code>，<code>etcd</code>，诸如此类，它们互相协作，就好像一个”平面“。由于以上原因，”平面”的划分<strong>并不是</strong>以节点为单位的，这些组件甚至可以分布在不同的节点上（通常以Pod形式）。综上，”平面“的分类是以逻辑而非物理位置方面来划分的。控制平面负责决策，而数据平面负责执行实际工作。<br>不过要注意，master节点和worker节点并不等同于控制平面和数据平面，根据上文，很容易知道这两对东西甚至不在同一个级别上。但是话又说回来了，让worker跑控制平面的组件似乎有些反直觉……？</p>
+<h2 id="果然还是要来点干货啊"><a href="#果然还是要来点干货啊" class="headerlink" title="果然还是要来点干货啊"></a>果然还是要来点干货啊</h2><h3 id="MetalLB-1"><a href="#MetalLB-1" class="headerlink" title="MetalLB"></a>MetalLB</h3><p>下面是MetalLB资源的配置文件（假设<code>metallb</code>命名空间存在 <del>废话</del> ）</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">metallb.io/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">IPAddressPool</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">default-pool</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">metallb</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">addresses:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.50</span><span class="number">-192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">metallb.io/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">L2Advertisement</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">default-l2</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">metallb</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ipAddressPools:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">default-pool</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="Ingress-nginx"><a href="#Ingress-nginx" class="headerlink" title="Ingress-nginx"></a>Ingress-nginx</h3><p>由于我们配置了MetalLB，所以我们现在可以使用<code>LoadBalancer</code>来暴露我们的Ingress服务了！但是等等昂，我们需要让Ingress知道这一点……我们先创建一个文件，<code>ingress_value.yaml</code>：  </p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">controller:</span></span><br><span class="line">  <span class="attr">service:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">LoadBalancer</span></span><br></pre></td></tr></table></figure>
+<p>然后使用下面的命令，将我们的配置应用到Ingress，让Ingress见识一下我们新提的<code>LoadBalancer</code>语义实现：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm upgrade ingress-app ingress-nginx/ingress-nginx -n=the-namespace -f ingress_value.yaml</span><br></pre></td></tr></table></figure>
+<p>下面贴出了我将&#x2F;dashboard的path代理到my-headlamp服务的Ingress配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">cirno-ingress-config-redirect</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kube-system</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ingressClassName:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">http:</span></span><br><span class="line">        <span class="attr">paths:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">pathType:</span> <span class="string">Exact</span></span><br><span class="line">            <span class="attr">backend:</span></span><br><span class="line">              <span class="attr">service:</span></span><br><span class="line">                <span class="attr">name:</span> <span class="string">my-headlamp</span></span><br><span class="line">                <span class="attr">port:</span></span><br><span class="line">                  <span class="attr">number:</span> <span class="number">80</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">/dashboard/</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># 由于headlamp的不明问题，访问“/dashboard”时服务会爆404，而“/dashboard/”却没有问题，所以下面再加一条</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">cirno-ingress-config-redirect-slash</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kube-system</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">nginx.ingress.kubernetes.io/permanent-redirect:</span> <span class="string">/dashboard/</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ingressClassName:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">http:</span></span><br><span class="line">        <span class="attr">paths:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">pathType:</span> <span class="string">Exact</span></span><br><span class="line">            <span class="attr">backend:</span></span><br><span class="line">              <span class="attr">service:</span></span><br><span class="line">                <span class="attr">name:</span> <span class="string">my-headlamp</span></span><br><span class="line">                <span class="attr">port:</span></span><br><span class="line">                  <span class="attr">number:</span> <span class="number">80</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">/dashboard</span></span><br></pre></td></tr></table></figure>
+
+</div>
+
+
+  <footer class="post-footer">
+  
+  
+    <div class="post-tags">
+      <span class="meta-label">Tags: </span>
+      
+        <a href="/tags/k8s/" class="tag">k8s</a>
+      
+    </div>
+  
+  
+</footer>
+
+
+  
+<nav class="post-nav">
+  
+
+  
+    <div class="post-nav-item next">
+      <span class="post-nav-label">Next &rarr;</span>
+      <a href="/2026/03/31/code-test/" class="post-nav-title">
+        code-test
+      </a>
+    </div>
+  
+</nav>
+
+
+
+  
+</article>
+
+        </div>
+      
+    </main>
+
+    <footer class="footer">
+    <div class="footer-content">
+        <div class="footer-left">
+            
+            <span class="copyright">
+                &copy; 2026 nofyso
+            </span>
+        </div>
+
+        <div class="footer-right">
+            
+            <span class="powered">
+                Powered by Hexo
+                <a href="https://hexo.io" target="_blank" rel="noopener"
+                    >Hexo</a
+                >
+            </span>
+             
+            <span class="theme-info">
+                Theme
+                <a
+                    href="https://github.com/WinMin/hexo-theme-Bloom"
+                    target="_blank"
+                    rel="noopener"
+                    >Bloom</a
+                >
+            </span>
+            
+        </div>
+    </div>
+    <div id="cirno_tip" class="cirno-tip"></div>
+    
+    <div class="footer-social">
+        
+        <a
+            href="https://github.com/nofyso"
+            class="social-link"
+            target="_blank"
+            rel="noopener"
+            aria-label="GitHub"
+        >
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path
+                    fill="currentColor"
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                />
+            </svg>
+        </a>
+            
+    </div>
+    
+    <script>
+        function genRandom(max) {
+            return Math.floor(Math.random() * (max + 1));
+        }
+        let arr = [
+            "100% Bad Code!",
+            "スターいっぱい夢いっぱいです！",
+            "sudo dd if=/dev/random of=/dev/sda -> 🖥💥",
+            "No ArchLinux here yet...?",
+            "If you want it, then it's not wise to read something in it.",
+            "曾经，有有一只妖精，叫做Infrufter XIV Nofyso",
+            "val me: Cirno?",
+            "class Nofyso: Cirno(brain = null) { /*TODO*/ }",
+            "群友们怎么都这么厉害...",
+            "写不完，根本写不完！",
+            "抱歉Niko，这里没有🥞",
+            "Sorry Niko, no pancake here",
+            "Niko不是猫！",
+            "Niko is not! a! cat!",
+            "这里暂时没有世界机器",
+            "No TWM for now",
+            'DDD = Destructive "dd"',
+            "WDM = Wonderful Dotnet Master",
+            "什么？机器又跳电了？用软锤双击两下试试（）",
+            "K8s，轻而易举啊！坏了，坏了坏了",
+            "nofyso可以受委屈，但，你不能动我的，聚乙烯！",
+            "接下来要给你看什么Tip呢（翻",
+            "Qxalaris nofyso的全称其实是Oxalis Triangularis var. nofyso f. quadrifolia💦",
+            "好饿……",
+            "Here's nothing but trashes",
+        ];
+        document.getElementById("cirno_tip").innerText =
+            arr[genRandom(arr.length - 1)];
+    </script>
+</footer>
+
+  </div>
+
+  <!-- Main Script -->
+
+<script src="/js/main.js"></script>
+
+
+<!-- Search -->
+
+
+<!-- Baidu Analytics -->
+
+
+</body>
+</html>
