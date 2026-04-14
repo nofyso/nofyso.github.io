@@ -112,6 +112,18 @@
               </a>
             </li>
             
+              <li class="nav-divider">|</li>
+            
+          
+            
+            <li class="nav-item">
+              <a href="/about/"
+                 class="nav-link"
+                 >
+                About
+              </a>
+            </li>
+            
           
         
       </ul>
@@ -138,8 +150,8 @@
     
       <span class="meta-item">
         <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3v7.12z"/></svg>
-        <time datetime="2026-03-29">
-          Updated on 2026-03-29
+        <time datetime="2026-04-14">
+          Updated on 2026-04-14
         </time>
       </span>
     
@@ -171,7 +183,7 @@
 <p>注意，<code>net.bridge.bridge-nf-call-iptables</code>的配置需要在装载了<code>br_netfilter</code>之后才能设置</p>
 <h3 id="守旧的crictl"><a href="#守旧的crictl" class="headerlink" title="守旧的crictl"></a>守旧的crictl</h3><p>在曾经，dockershim作为docker的中间层充当容器运行时，但是现在这种做法已经被弃用了，我们现在可以直接使用containerd来平替dockershim。<br>不幸的是，crictl仍然会试图寻找dockershim，所以我们需要在<code>/etc/crictl.yaml</code>里配置</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">runtime-endpoint:</span> <span class="string">unix:///var/run/containerd/containerd.sock</span></span><br><span class="line"><span class="attr">image-endpoint:</span> <span class="string">unix:///var/run/containerd/containerd.sock</span></span><br><span class="line"><span class="attr">timeout:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">debug:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
-<h3 id="欠配置的containerd"><a href="#欠配置的containerd" class="headerlink" title="欠配置的containerd"></a>欠配置的containerd</h3><p>在容器被拉起时，当时我发现etcd和apiserver相继挂掉从而导致了整个集群崩盘的现象，后经查证，这是因为我的虚拟机使用的是Ubuntu Server 22.04 LTS，而这个系统默认使用systemd，所以我们需要在containerd的配置文件<code>/etc/containerd/config.toml</code>里确认<code>SystemdCgroup = true</code><br>顺便一提，这个目录和文件<strong>默认不存在</strong>，所以要先生成默认的，复制到对应目录，然后再改：</p>
+<h3 id="欠配置的containerd"><a href="#欠配置的containerd" class="headerlink" title="欠配置的containerd"></a>欠配置的containerd</h3><p>在容器被拉起时，当时我发现etcd和apiserver相继挂掉从而导致了整个集群崩盘的现象，后经查证，这是因为我的虚拟机使用的是Ubuntu Server 22.04 LTS，而这个系统默认使用systemd，所以我们需要在containerd的配置文件<code>/etc/containerd/config.toml</code>里确认<code>SystemdCgroup = true</code><br>注意，在新版本containerd中，要设置的是<code>[plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.runc.options]</code>下的<code>SystemdCgroup = true</code>，而<strong>不是</strong>旧版本中的<code>[plugins.&quot;io.containerd.grpc.v1.cri&quot;]</code>，这里面记录的是<br>顺便一提，这个目录和文件<strong>默认不存在</strong>，所以要先生成默认的，复制到对应目录，然后再改：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">containerd config default &gt; config.toml</span><br></pre></td></tr></table></figure>
 <h3 id="集群配置"><a href="#集群配置" class="headerlink" title="集群配置"></a>集群配置</h3><p>于我而言，我不喜欢使用各种参数把kubeadm后面的参数拼的比我的屏幕还长，或者搞砸了之后想要看看哪里改错的时候按↑键找之前的命令找半天，所以我推荐使用配置文件来写配置<br>先使用这个生成配置：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm config print init-defaults &gt; config.yaml</span><br></pre></td></tr></table></figure>
@@ -325,6 +337,7 @@
             "Qxalaris nofyso的全称其实是Oxalis Triangularis var. nofyso f. quadrifolia💦",
             "好饿……",
             "Here's nothing but trashes",
+            "rapae, scales... 多么诡谲的名字",
         ];
         document.getElementById("cirno_tip").innerText =
             arr[genRandom(arr.length - 1)];
