@@ -60,21 +60,25 @@
 <body class="theme-dark">
   <div class="container">
     <header class="header">
+  <style>
+    .header-inner {
+      align-items: center;
+      gap: 20px;
+    }
+  </style>
   <div class="header-inner">
-    <div class="header-brand">
-      
-      <a href="/" class="site-title">
-        nofyso
-      </a>
-    </div>
-
     <nav class="nav">
       <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
       </button>
-
+      <div class="header-brand">
+        
+        <a href="/" class="site-title">
+          nofyso
+        </a>
+      </div>
       <ul class="nav-menu" id="nav-menu">
         
           
@@ -186,7 +190,7 @@
         <div class="footer-right">
             
             <span class="powered">
-                Powered by Hexo
+                Powered by
                 <a href="https://hexo.io" target="_blank" rel="noopener"
                     >Hexo</a
                 >
@@ -205,6 +209,12 @@
         </div>
     </div>
     <div id="cirno_tip" class="cirno-tip"></div>
+    <style>
+    .cirno-tip {
+        text-align: center; /* 水平居中 */
+        word-break: break-word; /* 自动换行 */
+    }
+    </style>
     <script>
         function genRandom(max) {
             return Math.floor(Math.random() * (max + 1));
