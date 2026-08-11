@@ -154,8 +154,8 @@
     
       <span class="meta-item">
         <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3v7.12z"/></svg>
-        <time datetime="2026-07-02">
-          Updated on 2026-07-02
+        <time datetime="2026-07-08">
+          Updated on 2026-07-08
         </time>
       </span>
     
@@ -169,7 +169,7 @@
     <nav class="toc">
   <h3 class="toc-title">Table of Contents</h3>
   <div class="toc-list">
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%98%BF%E5%91%80"><span class="toc-text">嘿呀~</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%AA%E8%87%83%E8%82%BF%E5%95%A6%EF%BC%81"><span class="toc-text">太臃肿啦！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E6%9E%84"><span class="toc-text">重构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%80%9CYou-can%E2%80%99t-be-more-careful-about-error-handing%E2%80%9D"><span class="toc-text">“You can’t be more careful about error handing”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dashboard%E2%80%A6%E2%80%A6%E7%9A%84%E5%89%8D%E7%BD%AE"><span class="toc-text">Dashboard……的前置</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%98%BF%E5%91%80"><span class="toc-text">嘿呀~</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%AA%E8%87%83%E8%82%BF%E5%95%A6%EF%BC%81"><span class="toc-text">太臃肿啦！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E6%9E%84"><span class="toc-text">重构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%80%9CYou-can%E2%80%99t-be-more-careful-about-error-handing%E2%80%9D"><span class="toc-text">“You can’t be more careful about error handing”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dashboard%E2%80%A6%E2%80%A6%E7%9A%84%E5%89%8D%E7%BD%AE"><span class="toc-text">Dashboard……的前置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8F%92%E6%9B%B2"><span class="toc-text">小插曲</span></a></li></ol></li></ol>
   </div>
 </nav>
 
@@ -212,6 +212,8 @@
 <p>但是这显然不太优雅，尤其是如果我以后需要在一个仪表盘中查看多个集群（或者说，多个部署）的运行情况的话，我总不能让仪表盘做一堆适配吧？</p>
 <p>所以，我觉得整一个统一的API规范是有必要的——每个部署内部维护一个简单的Deployment，这个Deployment只是读redis队列，或者是其它什么东西，然后将其映射为一个结构化的输出，前端只需要调用这些接口，解析这些统一结构的输出就可以了，简单来讲，把数据对接的操作丢给了部署本身，而不是Dashboard</p>
 <p>&#x2F;&#x2F; Dashboard API 正在设计中</p>
+<h3 id="小插曲"><a href="#小插曲" class="headerlink" title="小插曲"></a>小插曲</h3><p>顺带咱在写到这里的时候考试已经考完了<br>但是体育挂科了……what？？<br>得加强锻炼了……</p>
+<p>上述的重构已经全部完成了，比我想象中更加容易，修了几个bug之后，上集群测试并没有发现什么问题</p>
 
 </div>
 
@@ -220,7 +222,7 @@
   
   
     <div class="post-tags">
-      <span class="meta-label">标签: </span>
+      <span class="meta-label">Tags: </span>
       
         <a href="/tags/cuscuta/" class="tag">cuscuta</a>
       
@@ -232,6 +234,13 @@
 
   
 <nav class="post-nav">
+  
+    <div class="post-nav-item prev">
+      <span class="post-nav-label">&larr; Prev</span>
+      <a href="/2026/08/11/nothing-3/" class="post-nav-title">
+        随便-3
+      </a>
+    </div>
   
 
   
